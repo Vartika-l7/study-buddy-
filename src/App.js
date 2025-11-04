@@ -1,25 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import UploadSection from "./components/UploadSection";
+import SummariesDisplay from "./components/SummariesDisplay";
+import QuizSection from "./components/QuizSection";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100">
+      <Navbar />
+      <div className="pt-20">
+        <Routes>
+          <Route path="/" element={<UploadSection />} />
+          <Route path="/summaries" element={<SummariesDisplay />} />
+          <Route path="/quiz" element={<QuizSection />} />
+        </Routes>
+      </div>
     </div>
   );
 }
 
 export default App;
+
+
+
