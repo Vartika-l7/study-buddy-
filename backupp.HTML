@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Buddy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #FEF6F0;
+        }
+        .cute-bg-pattern {
+            /* Cute repeating pattern for background texture */
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FDE6D8' fill-opacity='0.6'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="text-gray-800 cute-bg-pattern">
+    <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.txt">
+    <img id="study-buddy1-img" src="studybuddy1.png" class="hidden" alt="Buddy Image 1">
+    <img id="study-buddy2-img" src="studybuddy2.png" class="hidden" alt="Buddy Image 2">
+
+    <div class="min-h-screen flex flex-col">
+        <header class="bg-white/70 backdrop-blur-lg shadow-sm sticky top-0 z-10">
+            <nav class="container mx-auto px-6 py-2 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <img id="header-logo-display" src="" alt="AI Study Buddy Logo" class="w-16 h-16">
+                    <h1 class="text-2xl font-bold text-orange-500" style="color: #F89C74;">AI Study Buddy</h1>
+                </div>
+                <div class="space-x-4">
+                    <button id="home-btn" class="text-lg font-semibold text-orange-500 border-b-2 border-orange-500 pb-1">Home</button>
+                    <button id="dashboard-btn" class="text-lg font-semibold text-gray-400 hover:text-orange-500 transition pb-1">Dashboard</button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="flex-grow container mx-auto p-4 md:p-8">
+            <div id="home-view" class="fade-in">
+                <div class="flex flex-col lg:flex-row items-center justify-center gap-8 text-center lg:text-left mb-12">
+                     <img id="hero-img" src="" alt="Study Buddy Reading" class="w-48 md:w-64 animate-float">
+                     <div>
+                          <h2 class="text-5xl font-bold text-gray-800 leading-tight">Ready to ace your tests?</h2>
+                          <p class="text-xl text-gray-500 mt-4">Just upload your notes, and I'll help you get started!</p>
+                     </div>
+                </div>
+
+                <div id="upload-section">
+                    <div class="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto">
+                        <div class="border-4 border-dashed border-orange-200 rounded-xl p-10 text-center cursor-pointer hover:border-orange-400 transition group" id="drop-zone">
+                            <div class="flex justify-center mb-4">
+                                <svg class="w-16 h-16 text-orange-300 group-hover:text-orange-400 transition" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4h12.586A4.5 4.5 0 0118 22.5h.5a3.5 3.5 0 10-2.5-6.236V12a4 4 0 00-4-4H7a4 4 0 00-4 4v.5" /></svg>
+                            </div>
+                            <p class="text-xl text-gray-600 font-semibold">Drag & drop your notes here</p>
+                            <p class="text-gray-400 mt-1">PDF, DOCX, or TXT</p>
+                            <button id="upload-btn" class="mt-6 bg-orange-400 text-white font-bold py-3 px-8 rounded-full hover:bg-orange-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">Or Select a File</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="processing-section" class="hidden text-center mt-12 flex flex-col items-center justify-center gap-6">
+                    <img id="processing-img" src="" alt="Study Buddy Writing" class="w-48 h-48 animate-pulse">
+                    <span class="text-2xl font-semibold text-gray-600">Studying your notes super hard...</span>
+                </div>
+                
+                <div id="results-section" class="hidden">
+                    <div class="text-center mb-8 flex flex-col items-center gap-4">
+                        <img id="results-img" src="" alt="Good Job!" class="w-40 h-40">
+                        <h3 class="text-3xl font-bold text-gray-800">Great work! Your notes are ready.</h3>
+                        <p class="text-lg text-gray-500">Let's turn them into something amazing!</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                        <button class="bg-white p-6 rounded-2xl shadow-lg text-center transform hover:-translate-y-2 transition-transform duration-300 border-2 border-transparent hover:border-orange-300 card" data-action="summarize">
+                             <img data-buddy-img="summarize" src="" alt="Summarize" class="w-24 h-24 mx-auto mb-4">
+                            <h4 class="text-xl font-bold text-gray-800 mb-1">Summarize</h4>
+                            <p class="text-gray-500">Get a quick overview</p>
+                        </button>
+                        <button class="bg-white p-6 rounded-2xl shadow-lg text-center transform hover:-translate-y-2 transition-transform duration-300 border-2 border-transparent hover:border-orange-300 card" data-action="quiz">
+                            <img data-buddy-img="quiz" src="" alt="Generate Quiz" class="w-24 h-24 mx-auto mb-4">
+                            <h4 class="text-xl font-bold text-gray-800 mb-1">Generate Quiz</h4>
+                            <p class="text-gray-500">Test your knowledge</p>
+                        </button>
+                        <button class="bg-white p-6 rounded-2xl shadow-lg text-center transform hover:-translate-y-2 transition-transform duration-300 border-2 border-transparent hover:border-orange-300 card" data-action="flashcards">
+                             <img data-buddy-img="flashcards" src="" alt="Flashcards" class="w-24 h-24 mx-auto mb-4">
+                            <h4 class="text-xl font-bold text-gray-800 mb-1">Flashcards</h4>
+                            <p class="text-gray-500">Memorize key facts</p>
+                        </button>
+                        <button class="bg-white p-6 rounded-2xl shadow-lg text-center transform hover:-translate-y-2 transition-transform duration-300 border-2 border-transparent hover:border-orange-300 card" data-action="paraphrase">
+                             <img data-buddy-img="paraphrase" src="" alt="Paraphrase" class="w-24 h-24 mx-auto mb-4">
+                            <h4 class="text-xl font-bold text-gray-800 mb-1">Paraphrase</h4>
+                            <p class="text-gray-500">Reword any section</p>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="content-display" class="hidden mt-10 max-w-4xl mx-auto"></div>
+            </div>
+
+            <div id="dashboard-view" class="hidden fade-in">
+                <div class="text-center mb-8">
+                    <h2 class="text-4xl font-bold text-gray-800">Your Progress Dashboard</h2>
+                    <p class="text-lg text-gray-500 mt-2">See how you're improving over time!</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
+                        <div class="p-3 bg-orange-100 rounded-full text-orange-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Quizzes Taken</p>
+                            <p class="text-2xl font-bold text-gray-800">12</p>
+                        </div>
+                    </div>
+                     <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
+                        <div class="p-3 bg-green-100 rounded-full text-green-500">
+                           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Average Score</p>
+                            <p class="text-2xl font-bold text-gray-800">88%</p>
+                        </div>
+                    </div>
+                     <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
+                        <div class="p-3 bg-blue-100 rounded-full text-blue-500">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Study Time</p>
+                            <p class="text-2xl font-bold text-gray-800">7 hours</p>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4">Quiz Score History</h3>
+                        <canvas id="scoreChart"></canvas>
+                    </div>
+                     <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4">Topics Studied</h3>
+                        <canvas id="topicsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-white/70 mt-12 py-6">
+            <div class="container mx-auto text-center text-gray-500">
+                <p>&copy; 2024 AI Study Buddy. Made with ♡ for students.</p>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        // --- Configuration ---
+        // !! IMPORTANT: Change this if your FastAPI server runs on a different address/port !!
+        const API_BASE_URL = 'http://127.0.0.1:8000'; 
+        let uploadedFileContent = ""; // Global variable to store the text content of the uploaded file
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // --- Image Source (No change here) ---
+            const buddy1 = document.getElementById('study-buddy1-img').src;
+            const buddy2 = document.getElementById('study-buddy2-img').src;
+            document.getElementById('header-logo-display').src = buddy1;
+            document.getElementById('hero-img').src = buddy2;
+            document.getElementById('processing-img').src = buddy2;
+            document.getElementById('results-img').src = buddy2;
+            document.querySelectorAll('[data-buddy-img]').forEach(img => {
+                img.src = buddy2;
+            });
+
+            // --- DOM Elements ---
+            const homeBtn = document.getElementById('home-btn');
+            const dashboardBtn = document.getElementById('dashboard-btn');
+            const homeView = document.getElementById('home-view');
+            const dashboardView = document.getElementById('dashboard-view');
+            const uploadBtn = document.getElementById('upload-btn');
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+            const uploadSection = document.getElementById('upload-section');
+            const processingSection = document.getElementById('processing-section');
+            const resultsSection = document.getElementById('results-section');
+            const contentDisplay = document.getElementById('content-display');
+            
+            let scoreChartInstance = null;
+            let topicsChartInstance = null;
+
+            const buddyImageHTML = (classes = "w-24 h-24") => `<img src="${buddy2}" alt="Study Buddy" class="${classes} mx-auto">`;
+
+            const MOCK_QUIZ_HTML = `
+                <div class="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto">
+                    <div class="flex items-center justify-center gap-4 mb-6">
+                        <h3 class="text-2xl font-bold text-center text-gray-800">Pop Quiz Time! 🧠</h3>
+                        ${buddyImageHTML('w-16 h-16')}
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <p class="font-semibold text-lg mb-2">1. Where did the Renaissance begin?</p>
+                            <div class="space-y-2">
+                                <label class="block p-4 rounded-lg border border-gray-200 hover:bg-orange-50 cursor-pointer has-[:checked]:bg-orange-100 has-[:checked]:border-orange-400"><input type="radio" name="q1" class="mr-2 accent-orange-400"> France</label>
+                                <label class="block p-4 rounded-lg border border-gray-200 hover:bg-orange-50 cursor-pointer has-[:checked]:bg-orange-100 has-[:checked]:border-orange-400"><input type="radio" name="q1" class="mr-2 accent-orange-400"> Italy</label>
+                                <label class="block p-4 rounded-lg border border-gray-200 hover:bg-orange-50 cursor-pointer has-[:checked]:bg-orange-100 has-[:checked]:border-orange-400"><input type="radio" name="q1" class="mr-2 accent-orange-400"> Spain</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-8">
+                        <button class="bg-orange-400 text-white font-bold py-3 px-8 rounded-full hover:bg-orange-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">Submit Quiz</button>
+                    </div>
+                </div>`;
+
+            function showView(view) {
+                homeView.classList.add('hidden');
+                dashboardView.classList.add('hidden');
+                if (view === 'home') {
+                    homeView.classList.remove('hidden');
+                    homeBtn.classList.add('text-orange-500', 'border-b-2', 'border-orange-500');
+                    homeBtn.classList.remove('text-gray-400');
+                    dashboardBtn.classList.remove('text-orange-500', 'border-b-2', 'border-orange-500');
+                    dashboardBtn.classList.add('text-gray-400');
+                } else if (view === 'dashboard') {
+                    dashboardView.classList.remove('hidden');
+                    dashboardBtn.classList.add('text-orange-500', 'border-b-2', 'border-orange-500');
+                    dashboardBtn.classList.remove('text-gray-400');
+                    homeBtn.classList.remove('text-orange-500', 'border-b-2', 'border-orange-500');
+                    homeBtn.classList.add('text-gray-400');
+                    renderCharts();
+                }
+            }
+            
+            // --- NEW FUNCTION: Reads text content from supported files ---
+            async function extractFileText(file) {
+                if (file.type === 'text/plain') {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = (e) => reject("Error reading file");
+                        reader.readAsText(file);
+                    });
+                } else {
+                     // Placeholder for non-TXT files. In a real app, you'd send the file 
+                     // to the backend for complex extraction (PDF/DOCX).
+                     console.log(`File type ${file.type} requires server-side processing.`);
+                     return "This is placeholder content for complex files. The core topic is: The importance of distributed computing and efficient resource allocation in modern AI applications.";
+                }
+            }
+
+            // --- UPDATED FUNCTION: Handles file upload and stores content ---
+            async function handleFileUpload(file) {
+                if (!file) return;
+                uploadSection.classList.add('hidden');
+                processingSection.classList.remove('hidden');
+                contentDisplay.classList.add('hidden');
+                resultsSection.classList.add('hidden');
+
+                try {
+                    // Extract the text content from the file
+                    const content = await extractFileText(file); 
+                    uploadedFileContent = content; // Store content globally
+                    
+                    processingSection.classList.add('hidden');
+                    resultsSection.classList.remove('hidden');
+                    resultsSection.classList.add('fade-in');
+
+                } catch (error) {
+                    console.error("Error processing file:", error);
+                    alert("File processing failed! Please ensure it's a valid text file.");
+                    uploadSection.classList.remove('hidden');
+                    processingSection.classList.add('hidden');
+                }
+            }
+
+            // --- UPDATED FUNCTION: Handles action clicks and connects to FastAPI for 'summarize' ---
+            async function handleActionClick(action) {
+                if (!uploadedFileContent) {
+                     alert("Please upload a file first!");
+                     return;
+                }
+
+                contentDisplay.innerHTML = `<div class="text-center flex flex-col items-center justify-center gap-4 bg-white p-8 rounded-2xl shadow-xl"><h3 class="text-2xl font-bold text-gray-800">Working on it...</h3>${buddyImageHTML("w-24 h-24 animate-pulse")}</div>`;
+                contentDisplay.classList.remove('hidden');
+                contentDisplay.classList.add('fade-in');
+                const comingSoonBase = (feature) => `<div class="text-center flex flex-col items-center justify-center gap-4 bg-white p-8 rounded-2xl shadow-xl"><h3 class="text-2xl font-bold text-gray-800">My buddy is working hard on the ${feature} feature!</h3>${buddyImageHTML()}<p class="text-gray-500">It'll be ready soon!</p></div>`;
+
+                switch (action) {
+                    case 'summarize':
+                        try {
+                            // 1. Prepare data structure to send to FastAPI
+                            const requestData = {
+                                text: uploadedFileContent, 
+                                max_length: 150, 
+                                min_length: 50
+                            };
+
+                            // 2. Make POST request to the FastAPI /summarize/ endpoint
+                            const response = await fetch(`${API_BASE_URL}/summarize/`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(requestData) // Sends the text as JSON
+                            });
+
+                            if (!response.ok) throw new Error(`API error: ${response.status}`);
+                            const data = await response.json();
+                            
+                            // 3. Display the summary result
+                            const summaryHTML = `<div class="bg-white rounded-2xl shadow-xl p-8"><div class="flex items-center gap-4 mb-6">${buddyImageHTML()}<h3 class="text-2xl font-bold text-gray-800">Here's the scoop on your notes!</h3></div><div class="space-y-4 text-left p-6 bg-blue-50/50 border-l-4 border-blue-400 rounded-lg"><p>${data.summary.replace(/\n/g, '<br>')}</p></div></div>`;
+                            contentDisplay.innerHTML = summaryHTML;
+
+                        } catch (error) {
+                            console.error("Error fetching summary:", error);
+                            contentDisplay.innerHTML = `<div class="bg-white rounded-2xl shadow-xl p-8"><p class="text-center text-red-500">Could not get summary. Please ensure your backend is running at ${API_BASE_URL} and **CORS is enabled**.</p></div>`;
+                        }
+                        break;
+                    case 'quiz':
+                        setTimeout(() => { contentDisplay.innerHTML = MOCK_QUIZ_HTML; }, 500);
+                        break;
+                    case 'flashcards':
+                        contentDisplay.innerHTML = comingSoonBase('flashcards');
+                        break;
+                    case 'paraphrase':
+                        contentDisplay.innerHTML = comingSoonBase('paraphrasing');
+                        break;
+                }
+            }
+
+            function renderCharts() {
+                if (scoreChartInstance) scoreChartInstance.destroy();
+                if (topicsChartInstance) topicsChartInstance.destroy();
+                const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+                scoreChartInstance = new Chart(scoreCtx, { type: 'line', data: { labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'], datasets: [{ label: 'Quiz Score %', data: [75, 80, 85, 82, 90, 88], backgroundColor: 'rgba(251, 146, 60, 0.1)', borderColor: '#FB923C', borderWidth: 3, tension: 0.4, pointBackgroundColor: '#FB923C', pointRadius: 5, }] }, options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } } });
+                const topicsCtx = document.getElementById('topicsChart').getContext('2d');
+                topicsChartInstance = new Chart(topicsCtx, { type: 'doughnut', data: { labels: ['History', 'Science', 'Literature', 'Math'], datasets: [{ label: 'Study Sessions', data: [12, 9, 7, 5], backgroundColor: ['#FDBF6F', '#6EE7B7', '#93C5FD', '#C4B5FD'], hoverOffset: 4 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
+            }
+            
+            // --- Event Listeners ---
+            homeBtn.addEventListener('click', () => showView('home'));
+            dashboardBtn.addEventListener('click', () => showView('dashboard'));
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (event) => { const file = event.target.files[0]; if (file) { handleFileUpload(file); } });
+            dropZone.addEventListener('dragover', (event) => { event.preventDefault(); dropZone.classList.add('border-orange-400'); });
+            dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('border-orange-400'); });
+            dropZone.addEventListener('drop', (event) => { event.preventDefault(); dropZone.classList.remove('border-orange-400'); const file = event.dataTransfer.files[0]; if (file) { handleFileUpload(file); } });
+            document.querySelectorAll('.card').forEach(card => { card.addEventListener('click', (e) => { e.preventDefault(); handleActionClick(card.dataset.action); }); });
+            showView('home');
+        });
+    </script>
+</body>
+</html>
