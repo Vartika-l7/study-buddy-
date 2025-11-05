@@ -1,6 +1,3 @@
-
-Here is a shorter and simpler version of the README for your AI Study Buddy app.
-
 📚 AI Study Buddy App
 A simple, smart study tool using a FastAPI (Python) backend and a Tailwind/JavaScript frontend. Upload your notes and instantly generate study aids!
 
